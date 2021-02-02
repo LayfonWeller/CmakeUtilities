@@ -8,10 +8,10 @@ endif()
 set(__add_clangformat YES)
 
 if(NOT clangFormat_FOUND)
-  find_program(clangFormat_EXECUTABLE NAMES clang-format)
+  find_program(clangFormat_EXECUTABLE NAMES clang-format clang-format-11)
 endif()
 
-include(utils)
+include(getSourceFileList)
 
 option(FORMAT_ENABLE_ALL "Add a project to force a format all files that should be formatted" ON)
 option(FORMAT_ENABLE_CHANGES "Add a project to force a format files that were changed" ON)
@@ -107,6 +107,7 @@ function(target_format _target_name)
     endif()
 
     if(FORMAT_ENABLE_CHANGES)
+      # TODO Format change only is not done yet
       format_create_target_from_file_list(${TARGET_FORMAT_ARGS_NAME} "${_format_target_sources}")
     else()
       message(STATUS "Not formatting changes")

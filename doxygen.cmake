@@ -54,7 +54,7 @@ if(BUILD_DOCUMENTATION)
 
     # set(DOXYGEN_HTML_STYLESHEET ${CMAKE_CURRENT_SOURCE_DIR}/Documentation/doxygen/pex.css)
     doxygen_add_docs(docs-${PROJECT_NAME} ${PROJECT_SOURCE_DIR})
-    install(DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}/html DESTINATION share/doc COMPONENT Documentation)
+    install(DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}/html DESTINATION share/doc/${PROJECT_NAME} COMPONENT Documentation)
 
     add_dependencies(docs docs-${PROJECT_NAME})
   endif()

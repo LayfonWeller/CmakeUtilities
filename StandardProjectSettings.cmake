@@ -1,4 +1,4 @@
-/# From lefticus cpp_starter_project
+# From lefticus cpp_starter_project
 include(CMakeDependentOption)
 
 
@@ -23,14 +23,20 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(ENABLE_IPO "Enable Iterprocedural Optimization, aka Link Time Optimization (LTO)" OFF)
 
 if(ENABLE_IPO)
-  include(CheckIPOSupported)
+  
   # FIXME This seems to have issues with cross compiling!
-  # check_ipo_supported(RESULT result OUTPUT output)
-  # if(result)
+  if (NOT CMAKE_CROSSCOMPILING)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT result OUTPUT output)
+  if(result)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-  # else()
-  #   message(SEND_ERROR "IPO is not supported: ${output}")
-  # endif()
+  else()
+    message(SEND_ERROR "IPO is not supported: ${output}")
+  endif()
+else()
+    message(WARNING "Can not determine if LTO is supported when cross-compilling, thus enabled has requested")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 endif()
 
 
