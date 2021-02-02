@@ -3,6 +3,11 @@ if(__add_catchtestutils)
 endif()
 set(__add_catchtestutils YES)
 
+include(CompilerWarnings)
+include(Findcodecov)
+
+include(CMakeDependentOption)
+
 option(ENABLE_TESTING "Enable Test Builds" OFF)
 
 if(ENABLE_TESTING)
@@ -16,7 +21,7 @@ endif()
 
 macro(Test_Add_Test_Folder)
   if(NOT TARGET catch_main)
-    option(ENABLE_TESTING_${PROJECT_NAME} "Enable ${PROJECT_NAME} Test Builds" ${ENABLE_TESTING})
+    cmake_dependent_option(ENABLE_TESTING_${PROJECT_NAME} "Enable ${PROJECT_NAME} Test Builds" OFF "ENABLE_TESTING" ON)
     if(ENABLE_TESTING_${PROJECT_NAME})
       if(CMAKE_CROSSCOMPILING)
         include(ExternalProject)
@@ -31,6 +36,7 @@ macro(Test_Add_Test_Folder)
           TEST_BEFORE_INSTALL true
         )
       else()
+        enable_testing()
         add_subdirectory(tests)
       endif()
     endif()
@@ -43,10 +49,9 @@ macro(Test_Utils_Init)
     set(TEST_XML_FORMAT "junit") # TODO Prefer XML, but it doesn't work well with devops
   endif()
 
-  add_library(catch_main STATIC catch_main.cpp)
+  project_add_library(catch_main STATIC catch_main.cpp)
 
   target_link_libraries(catch_main PUBLIC CONAN_PKG::catch2)
-  # target_link_libraries(catch_main PRIVATE project_options)
 
 endmacro()
 
@@ -62,7 +67,8 @@ function(Add_Unit_Test SOURCE_FILE)
   cmake_parse_arguments(_ "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   add_executable(${TEST_IDENTIFIER} ${SOURCE_FILE})
-  target_link_libraries(${TEST_IDENTIFIER} PRIVATE catch_main ${__DEP_LIBS}) # project_options project_warnings
+  target_link_libraries(${TEST_IDENTIFIER} PRIVATE catch_main ${__DEP_LIBS})
+  set_project_warnings(${TEST_IDENTIFIER})
 
   # automatically discover tests that are defined in catch based test files you can modify the unittests. TEST_PREFIX to
   # whatever you want, or use different for different binaries
@@ -75,6 +81,8 @@ function(Add_Unit_Test SOURCE_FILE)
     --reporter=${TEST_XML_FORMAT}
     --out=${TEST_IDENTIFIER}.unit.xml
   )
+  add_coverage(${TEST_IDENTIFIER})
+
 
   # # Add a file containing a set of constexpr tests add_executable(constexpr_tests constexpr_tests.cpp)
 # target_link_libraries(constexpr_tests PRIVATE project_options project_warnings catch_main)
