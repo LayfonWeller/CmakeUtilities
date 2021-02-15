@@ -56,7 +56,7 @@ function(format_create_target_from_file_list t_format_targetname t_format_target
     endif()
 
     if(format_src_speudo_path IN_LIST format_srcs)
-      message(STATUS "Already in list ${format_src_speudo_path}")
+      message(VERBOSE "Already in list ${format_src_speudo_path}")
       continue()
     endif()
 

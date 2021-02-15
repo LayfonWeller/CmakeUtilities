@@ -126,21 +126,40 @@ function(target_cppcheck _target_name)
   set(cppcheck_sources)
   # _cppcheckbuildargs_for_target(${_target_name} cppcheck_args)
   _cppchecklistsource_for_target(${_target_name} cppcheck_sources)
+  string(REGEX REPLACE [[(^|[^\\]);]] "\\1\n" cppcheck_sources_list "${cppcheck_sources}")
 
   set(_cppcheck_target_name cppcheck_${_target_name})
-  set(_cppcheck_target_name_filename ${CMAKE_BINARY_DIR}/reports/cppcheck_${_target_name}.cppcheck.xml)
+  set(_cppcheck_target_name_filename ${CMAKE_CURRENT_BINARY_DIR}/reports/cppcheck_${_target_name}.cppcheck.xml)
+
+  file(
+    GENERATE
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.filelist.txt"
+    CONTENT "${cppcheck_sources_list}"
+  )
+
+  get_target_property(include_folders "${_target_name}" INCLUDE_DIRECTORIES)
+  string(REGEX REPLACE [[(^|[^\\]);]] "\\1\n" include_folders_list "${include_folders}")
+
+  file(
+    GENERATE
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.include.txt"
+    CONTENT "${include_folders_list}"
+  )
+
 
   if(cppcheck_sources)
     # foreach(_src ${cppcheck_sources})
     add_custom_command(
       OUTPUT ${_cppcheck_target_name_filename}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/cppcheck-build-dir"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/cppcheck-build-dir"
       COMMAND
-        "${CPPCHECK_EXECUTABLE}" ${cppcheck_args} --cppcheck-build-dir="${CMAKE_BINARY_DIR}/cppcheck-build-dir"
+        "${CPPCHECK_EXECUTABLE}"  --cppcheck-build-dir="${CMAKE_CURRENT_BINARY_DIR}/cppcheck-build-dir"
         -D__GNUC__ --enable=all --inconclusive --inline-suppr --xml --xml-version=2
-        --project=${CMAKE_BINARY_DIR}/compile_commands.json --output-file="${_cppcheck_target_name_filename}"
+        --file-list="${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.filelist.txt"
+        --includes-file="${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.include.txt"
+        --output-file="${_cppcheck_target_name_filename}"
       COMMENT [${_target_name}][CPPCHECK] Generating cppcheck xml
-      DEPENDS ${cppcheck_sources}
+      DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.filelist.txt" "${CMAKE_CURRENT_BINARY_DIR}/tmp/${_target_name}.cppcheck.include.txt"
       COMMENT Building CPPCHeck database ${_cppcheck_target_name_filename}
     )
     # endforeach()

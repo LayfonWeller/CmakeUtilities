@@ -1,5 +1,5 @@
-set(CMAKE_CXX_HEADER_FILE_EXTENSIONS ".hpp" ".tpp" ".h")
 set(CMAKE_C_HEADER_FILE_EXTENSIONS ".h")
+set(CMAKE_CXX_HEADER_FILE_EXTENSIONS ".hpp" ".tpp" ${CMAKE_C_HEADER_FILE_EXTENSIONS})
 
 function(get_full_source_list_for_target t_target_name t_output_list)
   set(options NO_CURRENT_ONLY NO_ADD_INCLUDE_DIRS)
