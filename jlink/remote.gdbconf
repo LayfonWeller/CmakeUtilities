@@ -1,0 +1,123 @@
+target remote localhost:2331
+set mem inaccessible-by-default off
+monitor speed auto
+monitor flash breakpoints 1
+monitor SWO DisableTarget 0xFFFFFFFF
+monitor SWO EnableTarget 0 0 0x1 0
+monitor clrbp
+monitor halt
+set pagination off
+
+set logging on
+
+
+#b Scheduler.c:168 if isMessageToBeSent
+#command
+#silent
+#output stFreeSlotMsg[i].pid
+#echo ,
+#output source
+#echo ,C=
+#output isConnected
+#echo ,R=
+#output isReady
+#echo ,SC=
+#output stFreeSlotMsg[i].sendIfConnecting
+#echo ,SD=
+#output stFreeSlotMsg[i].sendIfDisconnected
+#echo ,SR=
+#output stFreeSlotMsg[i].sendIfReady
+#echo ,D=
+#output isMessageToBeSent
+#echo \n
+#c
+#end
+
+#b LIN.c:lin_DisplayReady
+#command
+#silent
+#echo [===][*RDY*]Setting Ready Flag\n
+#c
+#end
+
+#b scale_menu.c:sclm_ProcessDisplayCommand if eDisplayCommand != CMD_NONE
+#command
+#silent
+#echo [<--][ PRC ] Processing Display Command "
+#output eDisplayCommand
+#echo " from "
+#output t_source
+#echo "\n
+#c
+#end
+
+# b LIN.c:2634
+# condition byLinState!=LIN_IDLE
+# command
+# silent
+# echo LIN_GetState=
+# output byLinState
+# echo "\n
+# c
+# end
+
+
+# b LIN.c:2637
+# command
+# silent
+# echo LIN_SetState : old=
+# output byLinState
+# echo new=
+# output state
+# echo "\n
+# c
+# end
+
+
+# b LIN.c:LIN_ProcessExternalCmds if frame[0] != ScaleCommands_NoOperation
+# command
+# silent
+# echo [<--][ PRC ] Parsing ScaleCommand "
+# output (ScaleCommand_t) frame[0]
+# echo "\n
+# c
+# end
+
+# b LIN.c:lin_DisplayDisconnected
+# command
+# silent
+# echo [ ! ][*DIS*] Display disconnected \n
+# c
+# end
+
+# b LIN.c:lin_DisplayConnected
+# command
+# silent
+# echo [ ! ][*CON*] Display Connected \n
+# c
+# end
+
+# b LIN.c:815
+# command
+# silent
+# echo [<--][*DVR*] Display Sent Version \n
+# c
+# end
+
+#b LIN.c:lin_SendResponse if linMsg.pid != MSG_DisplayCommandWithParam
+#echo [ ? ][ PRC ] Sent linMsg "
+#output linMsg
+#echo "\n
+#c
+#end
+
+# b LIN.c:lin_SendResponse if linMsg.pid == MSG_DisplayCommandWithParam && byDataResponse[0] != DisplayCommands_NoOperation
+# command
+# echo [-->][ PRC ] Sending MSG_DisplayCommandWithParam "
+# output (DisplayCommands_t) byDataResponse[0]
+# echo "\n
+# c
+# end
+
+#monitor reset
+c

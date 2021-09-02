@@ -83,7 +83,7 @@ endmacro()
 
 function(project_set_property)
   _project_fetchprojectsetting(projectSetting ${ARGN})
-  set_target_properties(${projectSetting} ${ARGN})
+  set_target_properties(${projectSetting}_INTERFACE ${ARGN})
 endfunction()
 
 function(project_compile_option)
@@ -96,12 +96,12 @@ function(project_compile_features)
   _project_fetchprojectsetting(projectSetting ${ARGN})
   _project_parseprivacylistarg(${ARGN})
   message(STATUS "Setting  compile features \"${ARGN}\" to \"${projectSetting}\"")
-  if(_PROJ_INTERFACE)
+  # if(_PROJ_INTERFACE)
     target_compile_features(${projectSetting}_INTERFACE INTERFACE ${_PROJ_INTERFACE})
-  endif()
-  if(_PROJ_PRIVATE)
+  # endif()
+  # if(_PROJ_PRIVATE)
     target_compile_features(${projectSetting}_PRIVATE INTERFACE ${_PROJ_PRIVATE})
-  endif()
+  # endif()
 endfunction()
 
 include(CompilerWarnings)
@@ -133,16 +133,14 @@ function(project_add_target TARGET_NAME)
   )
   if(NOT typ STREQUAL "INTERFACE_LIBRARY")
     target_link_libraries(
-      ${TARGET_NAME} INTERFACE ${projectSetting}_INTERFACE  target_settings
-                             PROJECT_COMPILE_FLAGS PRIVATE ${projectSetting}_PRIVATE
+      ${TARGET_NAME} INTERFACE ${projectSetting}_INTERFACE
+                              PRIVATE ${projectSetting}_PRIVATE
     )
     message(STATUS "Adding dependencies ${projectSetting} to ${TARGET_NAME}")
   else()
-  message(WARNING "UNTESTED PATH  ${TARGET_NAME}")
+  # message(WARNING "UNTESTED PATH  ${TARGET_NAME}") #This path is tested, but still less certain then some others, so need to double check
     target_link_libraries(
-      ${TARGET_NAME} INTERFACE ${projectSetting}_INTERFACE target_settings
-                             PROJECT_COMPILE_FLAGS
-    )
+      ${TARGET_NAME} INTERFACE ${projectSetting}_INTERFACE)
   endif()
 endfunction()
 

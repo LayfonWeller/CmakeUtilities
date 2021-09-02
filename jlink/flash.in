@@ -1,0 +1,10 @@
+h
+r
+unlock kinetis
+device ${DEVICE}
+erase
+speed 12000
+loadbin "${BINARY}", 0x00000000
+r
+g
+qc

@@ -4,8 +4,8 @@ endif()
 set(__add_catchtestutils YES)
 
 include(CompilerWarnings)
-include(Findcodecov)
-
+include(catch2_codecov/Findcodecov)
+include(projectSettings)
 include(CMakeDependentOption)
 
 option(ENABLE_TESTING "Enable Test Builds" OFF)

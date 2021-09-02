@@ -1,4 +1,4 @@
-# TODO HAVE it generate XML of missed changes
+#TODO HAVE it generate XML of missed changes
 # TODO Have it detect if git is installed and the repo is git based and if
 # so have it add the ok
 
@@ -18,14 +18,14 @@ option(FORMAT_ENABLE_CHANGES "Add a project to force a format files that were ch
 
 function(_format_create_format_custom_cmd t_input_full t_input_name t_output)
   if(NOT TARGET ${t_output})
-    add_custom_command(
-      OUTPUT ${t_output}
-      # MAIN_DEPENDENCY ${full_format_src}
-      COMMAND ${clangFormat_EXECUTABLE} -style=file -i ${t_input_full}
-      COMMAND ${CMAKE_COMMAND} -E touch ${t_output}
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "FORMATING ${t_input_name}"
-    )
+  add_custom_command(
+    OUTPUT ${t_output}
+    # MAIN_DEPENDENCY ${full_format_src}
+    COMMAND ${clangFormat_EXECUTABLE} -style=file -i ${t_input_full}
+    COMMAND ${CMAKE_COMMAND} -E touch ${t_output}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "FORMATING ${t_input_name}"
+  )
   endif()
 endfunction()
 
@@ -64,7 +64,7 @@ function(format_create_target_from_file_list t_format_targetname t_format_target
     file(MAKE_DIRECTORY ${dir})
 
     _format_create_format_custom_cmd(${full_format_src} ${format_src} ${format_src_speudo_path})
-    if(NOT _ALL)
+    if (NOT _ALL)
       file(TOUCH ${format_src_speudo_path})
     endif()
     list(APPEND format_srcs ${format_src_speudo_path})
@@ -100,16 +100,16 @@ function(target_format _target_name)
       set(TARGET_FORMAT_ARGS_NAME ${_target_name})
     endif()
 
-    if(FORMAT_ENABLE_ALL)
+    if (FORMAT_ENABLE_ALL)
       format_create_target_from_file_list(${TARGET_FORMAT_ARGS_NAME} "${_format_target_sources}" ALL)
-    else()
+    else ()
       message(STATUS "Not formatting all")
     endif()
 
-    if(FORMAT_ENABLE_CHANGES)
+    if (FORMAT_ENABLE_CHANGES)
       # TODO Format change only is not done yet
       format_create_target_from_file_list(${TARGET_FORMAT_ARGS_NAME} "${_format_target_sources}")
-    else()
+    else ()
       message(STATUS "Not formatting changes")
     endif()
 

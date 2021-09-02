@@ -33,7 +33,7 @@ if(BUILD_DOCUMENTATION)
     # ${CMAKE_CURRENT_SOURCE_DIR}/Documentation/doxygen )
 
     if(NOT TARGET docs)
-      add_custom_target(docs)
+      add_custom_target(docs ALL)
     endif()
 
     set(DOXYGEN_CALLER_GRAPH TRUE)

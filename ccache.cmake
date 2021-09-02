@@ -1,3 +1,5 @@
+include(CMakeDependentOption)
+
 find_program(CCACHE ccache)
 cmake_dependent_option(CCACHE_ACTIVATE "Use CCache to potential speed up re-compile time" ON "CCACHE" OFF)
 if(CCACHE_ACTIVATE)

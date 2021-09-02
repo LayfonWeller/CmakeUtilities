@@ -6,7 +6,7 @@ include(CMakeDependentOption)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
   set(CMAKE_BUILD_TYPE
-      RelWithDebInfo
+     Release
       CACHE STRING "Choose the type of build." FORCE
   )
   # Set the possible values of build type for cmake-gui, ccmake
@@ -23,7 +23,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(ENABLE_IPO "Enable Iterprocedural Optimization, aka Link Time Optimization (LTO)" OFF)
 
 if(ENABLE_IPO)
-  
+
   # FIXME This seems to have issues with cross compiling!
   if (NOT CMAKE_CROSSCOMPILING)
   include(CheckIPOSupported)
@@ -51,5 +51,5 @@ if (${FORCE_COLORED_OUTPUT})
         add_compile_options (-fdiagnostics-color=always)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         add_compile_options (-fcolor-diagnostics)
-    endif ()
-endif ()
+  endif()
+endif()

@@ -1,5 +1,5 @@
-#TODO Use --file-list instead of --project
-#TODO Merge XML files?
+# TODO Use --file-list instead of --project
+# TODO Merge XML files?
 if(__add_cppcheck)
   return()
 endif()
@@ -122,9 +122,8 @@ function(target_cppcheck _target_name)
     return()
   endif()
 
-  set(cppcheck_args)
+
   set(cppcheck_sources)
-  # _cppcheckbuildargs_for_target(${_target_name} cppcheck_args)
   _cppchecklistsource_for_target(${_target_name} cppcheck_sources)
   string(REGEX REPLACE [[(^|[^\\]);]] "\\1\n" cppcheck_sources_list "${cppcheck_sources}")
 

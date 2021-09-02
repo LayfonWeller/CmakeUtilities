@@ -73,9 +73,9 @@ function(set_project_warnings _target_name)
       WARNING_FLAGS
       C
       -Wstring-compare
-      -Wnull-dereference
-      -Wduplicated-cond
-      -Wduplicated-branches
+      #-Wnull-dereference
+      #-Wduplicated-cond
+      #-Wduplicated-branches
       -Wmissing-declarations
       -Wpointer-arith
       # -Wabi
@@ -89,9 +89,6 @@ function(set_project_warnings _target_name)
       -Wundef
       -Wno-parentheses
       -Wstring-compare
-      -Wnull-dereference
-      -Wduplicated-cond
-      -Wduplicated-branches
       -Wlogical-op
     )
 
