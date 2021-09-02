@@ -17,13 +17,39 @@ list(APPEND JLinkPossibleLocation "C:/Program Files (x86)/SEGGER/JLink")
 find_program(JLinkExe JLink NAMES JLinkExe PATHS ${JLinkPossibleLocation})
 find_program(JLinkGdbServer JLinkGDBServer PATHS ${JLinkPossibleLocation})
 
-if(DEFINED ENV{JLINK_SERVER_IP})
-  set(JLINK_IP_CONFIG -IP $ENV{JLINK_SERVER_IP})
-  set(JLINK_IP_CONFIG_DEBUG -select ip=$ENV{JLINK_SERVER_IP})
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake.in
+"if(DEFINED ENV{JLINK_SERVER_IP})
+  set(JLINK_IP_CONFIG -IP \$ENV{JLINK_SERVER_IP})
 else()
-  set(JLINK_IP_CONFIG "")
-  set(JLINK_IP_CONFIG_DEBUG "")
+  set(JLINK_IP_CONFIG \"\")
 endif()
+if (NOT SCRIPT)
+  message(ERROR \"Missing Script, no other method supported for now\")
+endif()
+if (NOT SPEED)
+set(SPEED 1000)
+endif()
+execute_process(
+  COMMAND echo \"@JLinkExe@ -device @DEVICE@ -speed \${SPEED} -if SWD -CommanderScript \${SCRIPT} \${JLINK_IP_CONFIG})\"
+  COMMAND \"@JLinkExe@\" -device @DEVICE@ -speed \${SPEED} -if SWD -CommanderScript \${SCRIPT} \${JLINK_IP_CONFIG})
+"
+)
+configure_file(${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake @ONLY)
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/run_JLinkGdbServer.cmake.in
+"if(DEFINED ENV{JLINK_SERVER_IP})
+  set(JLINK_IP_CONFIG_DEBUG -select ip=\$ENV{JLINK_SERVER_IP})
+else()
+  set(JLINK_IP_CONFIG_DEBUG \"\")
+endif()
+
+if (NOT SPEED)
+set(SPEED 1000)
+endif()
+execute_process(COMMAND \"@JLinkGdbServer@\" -device @DEVICE@ -speed \${SPEED} -if SWD \${JLINK_IP_CONFIG_DEBUG})
+"
+)
+configure_file(${CMAKE_CURRENT_BINARY_DIR}/run_JLinkGdbServer.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_JLinkGdbServer.cmake @ONLY)
 
 # Add JLink commands
 add_custom_target(
@@ -61,7 +87,7 @@ add_custom_target(
 
 add_custom_target(
   flash
-  COMMAND ${JLinkExe} -device ${DEVICE} -speed 10000 -if SWD -CommanderScript ${CMAKE_CURRENT_BINARY_DIR}/flash.jlink ${JLINK_IP_CONFIG}
+  COMMAND ${CMAKE_COMMAND} -DSCRIPT=${CMAKE_CURRENT_BINARY_DIR}/flash.jlink -P ${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/flash.jlink
   USES_TERMINAL
   COMMENT [FLASH]
@@ -71,7 +97,7 @@ add_custom_target(
 add_custom_target(
   erase
   USES_TERMINAL
-  COMMAND ${JLinkExe} -device ${DEVICE} -speed 4000 -if SWD -CommanderScript ${CMAKE_CURRENT_LIST_DIR}/erase.jlink ${JLINK_IP_CONFIG}
+  COMMAND ${CMAKE_COMMAND} -DSCRIPT=${CMAKE_CURRENT_LIST_DIR}/erase.jlink -DSPEED=4000 -P ${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake
   COMMENT [ERASE]
   Erasing ${PROJECT_NAME}
 )
@@ -80,7 +106,7 @@ add_custom_target(
 add_custom_target(
   reset
   USES_TERMINAL
-  COMMAND ${JLinkExe} -device ${DEVICE} -speed 4000 -if SWD -CommanderScript ${CMAKE_CURRENT_LIST_DIR}/reset.jlink ${JLINK_IP_CONFIG}
+  COMMAND ${CMAKE_COMMAND} -DSCRIPT=${CMAKE_CURRENT_LIST_DIR}/reset.jlink -DSPEED=4000 -P ${CMAKE_CURRENT_BINARY_DIR}/run_jlinkExe.cmake
   COMMENT [RESET]
   Resetting ${PROJECT_NAME}
 )
